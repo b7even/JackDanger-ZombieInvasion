@@ -123,6 +123,8 @@ JackDanger.b7even.prototype.update = function() {
     for (var i in this.jack.lifes) {
         this.jack.lifes[i].bringToTop();
     }
+
+    game.world.bringToTop(this.statusMsg);
 }
 
 // ---- //
