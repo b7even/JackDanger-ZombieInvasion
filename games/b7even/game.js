@@ -1,37 +1,9 @@
-/*
-Hallo!
-Das hier ist deine Spielevorlage!
-Ich hoffe, ich habe alles gut genug dokumentiert.
-
-Alles was hier MyGame heißt musst du umbenennen in etwas sehr
-individuelles. So wie KotzeMannGRKDM
-Die wirren Buchstaben können wichtig sein, falls jemand anderes
-auch KotzeMann entwickelt!
-
-WICHTIG
-
-Wenn dein Spiel geschafft ist, dann rufe
-
-onVictory();
-
-auf! Später wird da dann ein richtiger Gewonnen-Bildschrim erscheinen!
-
-Wenn man in deinem Spiel verliert, dann rufe
-
-onLose();
-
-auf. Dardurch wird dein Spiel neugestartet.
-
-Während du an deinem Spiel arbeitest, arbeite ich am Drumherum,
-sodass es dann alles auch supi aussieht!
-*/
-
 JackDanger.b7even = function() {
 
 };
 
 //hier musst du deine Eintragungen vornhemen.
-addMyGame("b7even", "My Game", "Spaßbringer08", "30 Sekunden ausweichen!", JackDanger.b7even);
+addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies mit den Tasten!", JackDanger.b7even);
 
 
 JackDanger.b7even.prototype.init = function() {
@@ -47,6 +19,8 @@ JackDanger.b7even.prototype.preload = function() {
 	game.load.spritesheet('zombie', 'zombie.png', 32, 64);
 	game.load.image('heart', 'heart.png');
 	game.load.image('dirt', 'dirt.png');
+
+	game.load.bitmapFont('carrier_command', 'carrier_command.png', 'carrier_command.xml');
 }
 
 //wird nach dem laden gestartet
@@ -68,31 +42,39 @@ JackDanger.b7even.prototype.create = function() {
         }
     }
 
+    this.statusMsg = game.add.bitmapText(786, 424, 'carrier_command', '', 16);
+    this.statusMsg.anchor.setTo(1, .5);
+    this.statusMsg.tint = 0xa02d2d;
+
     // create jack
     this.jack = new this.jackDefinition();
     this.jack.create();
 
     // create zombies
     this.zombies = new this.zombiesDefinition();
-    this.zombieTimer = 0;
-    this.zombieT = 5000;
+    this.zombieT = new Date().getTime();
+
+    this.zombieSpawner = [1000, 5000, 0, 4000, 1000, 3000, 500, 500, 2000, 250, 750, 1000, 0];
+
+    this.zombies.count = this.zombieSpawner.length;
+
+    this.statusMsg.setText(this.zombies.count + ' zombies left');
 }
 
 //wird jeden Frame aufgerufen
 JackDanger.b7even.prototype.update = function() {
     var dt = this.time.physicsElapsedMS * 0.001;
-
     // add zombie
     var timestamp = new Date().getTime();
-    if (this.zombieTimer + this.zombieT < timestamp && this.zombieT > 0) {
-        this.zombieTimer = timestamp;
-        this.zombieT -= 500;
-
+    if (this.zombieT + this.zombieSpawner[0] <= timestamp && this.zombieSpawner.length > 0) {
+        this.zombieSpawner.shift();
+        
+        this.zombieT = timestamp;
         this.zombies.add();
     }
 
     // won?
-    if (this.zombieT == 0 && this.zombies.objects.length == 0) {
+    if (this.zombieSpawner.length == 0 && this.zombies.objects.length == 0) {
         onVictory();
     }
 
@@ -253,6 +235,7 @@ JackDanger.b7even.prototype.jackDefinition = function () {
 
 JackDanger.b7even.prototype.zombiesDefinition = function () {
     this.objects = [];
+    this.count;
 
     this.add = function () {
         var i = this.objects.length;
@@ -283,6 +266,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                     if (x - Math.abs(this.objects[i].x) > 0 && x - Math.abs(this.objects[i].x) < 60) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
+                        this.count -= 1;
                     }
                 }
             }
@@ -292,6 +276,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                     if (Math.abs(this.objects[i].x) - x > 0 && Math.abs(this.objects[i].x) - x < 60) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
+                        this.count -= 1;
                     }
                 }
             }
@@ -301,6 +286,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                     if (y - Math.abs(this.objects[i].y) > 0 && y - Math.abs(this.objects[i].y) < 60) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
+                        this.count -= 1;
                     }
                 }
             }
@@ -310,6 +296,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                     if (Math.abs(this.objects[i].y) - y > 0 && Math.abs(this.objects[i].y) - y < 60) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
+                        this.count -= 1;
                     }
                 }
             }
@@ -385,7 +372,6 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
     };
 }
 
-
 JackDanger.b7even.prototype.controls = function (dt) {
     var timestamp = new Date().getTime();
 
@@ -393,6 +379,8 @@ JackDanger.b7even.prototype.controls = function (dt) {
     if (Pad.isDown(Pad.SHOOT)) {
         if (this.jack.lastStrike + 350 < timestamp) {
             this.zombies.kill(this.jack.obj.x, this.jack.obj.y, this.jack.direction);
+
+            this.statusMsg.setText(this.zombies.count + ' zombies left');
 
             this.jack.obj.animations.play('hit' + this.jack.direction);
 
