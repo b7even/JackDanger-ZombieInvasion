@@ -142,6 +142,9 @@ JackDanger.b7even.prototype.update = function() {
             this.explosions.splice(i, 1);
         } else if (this.explosions[i].timestamp + 250 <= timestamp && this.explosions[i].timestamp + 750 >= timestamp) {
             this.zombies.kill(this.explosions[i].obj.x, this.explosions[i].obj.y, 'Explosion');
+
+            this.statusMsg.setText(this.zombies.count + ' zombies left');
+            this.statusMsgShadow.setText(this.zombies.count + ' zombies left');
         }
     }
 
@@ -166,7 +169,7 @@ JackDanger.b7even.prototype.update = function() {
 
         var distance = Math.sqrt(vx * vx + vy * vy);
 
-        if (distance <= 40) {   // radius 40 == hit
+        if (distance <= 20) {   // radius 40 == hit
             this.jack.hit();
         }
     }
@@ -370,8 +373,8 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
             }
         } else if (direction == 'Left') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].y - y) < 25) {
-                    if (x - Math.abs(this.objects[i].x) > 0 && x - Math.abs(this.objects[i].x) < 60) {
+                if (Math.abs(this.objects[i].y - y) < 30) {
+                    if (x - Math.abs(this.objects[i].x) > 0 && x - Math.abs(this.objects[i].x) < 45) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
@@ -380,8 +383,8 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
             }
         } else if (direction == 'Right') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].y - y) < 25) {
-                    if (Math.abs(this.objects[i].x) - x > 0 && Math.abs(this.objects[i].x) - x < 60) {
+                if (Math.abs(this.objects[i].y - y) < 30) {
+                    if (Math.abs(this.objects[i].x) - x > 0 && Math.abs(this.objects[i].x) - x < 45) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
@@ -390,8 +393,8 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
             }
         } else if (direction == 'Up') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].x - x) < 25) {
-                    if (y - Math.abs(this.objects[i].y) > 0 && y - Math.abs(this.objects[i].y) < 60) {
+                if (Math.abs(this.objects[i].x - x) < 30) {
+                    if (y - Math.abs(this.objects[i].y) > 0 && y - Math.abs(this.objects[i].y) < 45) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
@@ -400,8 +403,8 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
             }
         } else if (direction == 'Down') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].x - x) < 25) {
-                    if (Math.abs(this.objects[i].y) - y > 0 && Math.abs(this.objects[i].y) - y < 60) {
+                if (Math.abs(this.objects[i].x - x) < 30) {
+                    if (Math.abs(this.objects[i].y) - y > 0 && Math.abs(this.objects[i].y) - y < 45) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
@@ -562,6 +565,11 @@ JackDanger.b7even.prototype.controls = function (dt) {
 
             newDirection = 'Right';
         }
+    } else {
+        this.zombies.kill(this.jack.obj.x, this.jack.obj.y, this.jack.direction);
+
+        this.statusMsg.setText(this.zombies.count + ' zombies left');
+        this.statusMsgShadow.setText(this.zombies.count + ' zombies left');
     }
 
     if (this.jack.obj.x < 40) {
