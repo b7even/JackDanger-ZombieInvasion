@@ -7,7 +7,7 @@ addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies mit den Tast
 
 JackDanger.b7even.prototype.init = function() {
     logInfo("init Game");
-    addLoadingScreen(this, true);//nicht anfassen
+    addLoadingScreen(this, false);//nicht anfassen
 }
 
 JackDanger.b7even.prototype.preload = function() {
