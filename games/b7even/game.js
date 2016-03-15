@@ -3,12 +3,11 @@ JackDanger.b7even = function() {
 };
 
 //hier musst du deine Eintragungen vornhemen.
-addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies mit den Tasten!", JackDanger.b7even);
-
+addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies mit den Tasten!", "Bewegen", "Bombe legen", "Schlagen", JackDanger.b7even);
 
 JackDanger.b7even.prototype.init = function() {
     logInfo("init Game");
-    addLoadingScreen(this);//nicht anfassen
+    addLoadingScreen(this, true);//nicht anfassen
 }
 
 JackDanger.b7even.prototype.preload = function() {
@@ -23,12 +22,29 @@ JackDanger.b7even.prototype.preload = function() {
 	game.load.spritesheet('explosion', 'explosion.png', 38, 38);
 
 	game.load.bitmapFont('carrier_command', 'carrier_command.png', 'carrier_command.xml');
+
+	game.load.audio('ExplosionAudio', 'Explosion.wav');
+	game.load.audio('HitAudio', 'Hit.wav');
+	//game.load.audio('HurtAudio', 'Hurt.wav');
+
+	game.load.audio('Step1', 'pl_step1.wav');
+	game.load.audio('Step2', 'pl_step2.wav');
 }
 
 //wird nach dem laden gestartet
-JackDanger.b7even.prototype.create = function() {
+JackDanger.b7even.prototype.create = function () {
     Pad.init();//nicht anfassen
-    removeLoadingScreen();//nicht anfassen
+    //removeLoadingScreen();//nicht anfassen
+}
+
+JackDanger.b7even.prototype.mycreate = function () {
+    this.stepSound = [];
+
+    this.stepSound[0] = game.add.audio('Step1');
+    this.stepSound[0].volume -= .5
+    this.stepSound[1] = game.add.audio('Step2');
+    this.stepSound[1].volume -= .5
+    this.stepTimer = 0;
 
     // create background
     for (var y = 0; y < 450; y += 64) {
@@ -107,6 +123,9 @@ JackDanger.b7even.prototype.update = function() {
     // bomb explode?
     for (var i in this.bombs) {
         if (this.bombs[i].timestamp + 2000 <= timestamp) {
+            var audio = game.add.audio('ExplosionAudio');
+            audio.play();
+
             var b = this.explosions.length;
 
             this.explosions[b] = {};
@@ -169,7 +188,7 @@ JackDanger.b7even.prototype.update = function() {
 
         var distance = Math.sqrt(vx * vx + vy * vy);
 
-        if (distance <= 20) {   // radius 40 == hit
+        if (distance <= 25) {   // radius 40 == hit
             this.jack.hit();
         }
     }
@@ -290,6 +309,9 @@ JackDanger.b7even.prototype.jackDefinition = function () {
         if (timestamp - this.lastHit > 1500) {
             this.gotHit = true;
 
+            var audio = game.add.audio('HurtAudio');
+            audio.play();
+
             // remove life
             game.world.remove(this.lifes[this.lifes.length - 1]);
             this.lifes.pop();
@@ -369,45 +391,55 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                     game.world.remove(this.objects[i]);
                     this.objects.splice(i, 1);
                     this.count -= 1;
+                    var audio = game.add.audio('HitAudio');
+                    audio.play();
                 }
             }
         } else if (direction == 'Left') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].y - y) < 30) {
-                    if (x - Math.abs(this.objects[i].x) > 0 && x - Math.abs(this.objects[i].x) < 45) {
+                if (Math.abs(this.objects[i].y - y) < 25) {
+                    if (x - Math.abs(this.objects[i].x) > 0 && x - Math.abs(this.objects[i].x) < 40) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
+                        var audio = game.add.audio('HitAudio');
+                        audio.play();
                     }
                 }
             }
         } else if (direction == 'Right') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].y - y) < 30) {
-                    if (Math.abs(this.objects[i].x) - x > 0 && Math.abs(this.objects[i].x) - x < 45) {
+                if (Math.abs(this.objects[i].y - y) < 25) {
+                    if (Math.abs(this.objects[i].x) - x > 0 && Math.abs(this.objects[i].x) - x < 40) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
+                        var audio = game.add.audio('HitAudio');
+                        audio.play();
                     }
                 }
             }
         } else if (direction == 'Up') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].x - x) < 30) {
-                    if (y - Math.abs(this.objects[i].y) > 0 && y - Math.abs(this.objects[i].y) < 45) {
+                if (Math.abs(this.objects[i].x - x) < 25) {
+                    if (y - Math.abs(this.objects[i].y) > 0 && y - Math.abs(this.objects[i].y) < 40) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
+                        var audio = game.add.audio('HitAudio');
+                        audio.play();
                     }
                 }
             }
         } else if (direction == 'Down') {
             for (var i in this.objects) {
-                if (Math.abs(this.objects[i].x - x) < 30) {
-                    if (Math.abs(this.objects[i].y) - y > 0 && Math.abs(this.objects[i].y) - y < 45) {
+                if (Math.abs(this.objects[i].x - x) < 25) {
+                    if (Math.abs(this.objects[i].y) - y > 0 && Math.abs(this.objects[i].y) - y < 40) {
                         game.world.remove(this.objects[i]);
                         this.objects.splice(i, 1);
                         this.count -= 1;
+                        var audio = game.add.audio('HitAudio');
+                        audio.play();
                     }
                 }
             }
@@ -537,6 +569,13 @@ JackDanger.b7even.prototype.controls = function (dt) {
         if ((Pad.isDown(Pad.LEFT) && (Pad.isDown(Pad.UP) || Pad.isDown(Pad.DOWN))) || (Pad.isDown(Pad.RIGHT) && (Pad.isDown(Pad.UP) || Pad.isDown(Pad.DOWN)))) {
             var f = .71;
         }
+
+        if ((Pad.isDown(Pad.LEFT)) || (Pad.isDown(Pad.RIGHT)) || (Pad.isDown(Pad.UP)) || (Pad.isDown(Pad.DOWN))) {
+            if (this.stepTimer + 350 < timestamp) {
+                this.stepTimer = timestamp;
+                this.stepSound[Math.round(Math.random())].play();
+            }
+        } 
 
         if (Pad.isDown(Pad.UP)) {
             this.jack.obj.y -= this.jack.speed * f * dt;
