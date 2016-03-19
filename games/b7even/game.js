@@ -395,6 +395,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                     audio.play();
                 }
             }
+
         } else if (direction == 'Left') {
             for (var i in this.objects) {
                 if (Math.abs(this.objects[i].y - y) < 25) {
