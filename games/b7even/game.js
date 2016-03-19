@@ -1,34 +1,38 @@
-JackDanger.b7even = function() {
+JackDanger.b7even = function () {
 
 };
 
 //hier musst du deine Eintragungen vornhemen.
 addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies mit den Tasten!", "Bewegen", "Bombe legen", "Schlagen", JackDanger.b7even);
 
-JackDanger.b7even.prototype.init = function() {
+JackDanger.b7even.prototype.init = function () {
     logInfo("init Game");
-    addLoadingScreen(this, false);//nicht anfassen
+    addLoadingScreen(this, true);//nicht anfassen
 }
 
-JackDanger.b7even.prototype.preload = function() {
-	this.load.path = 'games/' + currentGameData.id + '/assets/';//nicht anfassen
-	
+JackDanger.b7even.prototype.preload = function () {
+    this.load.path = 'games/' + currentGameData.id + '/assets/';//nicht anfassen
+
     //füge hie rein was du alles laden musst.
-	game.load.spritesheet('jack', 'jack.png', 32, 64);
-	game.load.spritesheet('zombie', 'zombie.png', 32, 64);
-	game.load.image('heart', 'heart.png');
-	game.load.image('dirt', 'dirt.png');
-	game.load.spritesheet('bomb', 'bomb.png', 17, 21);
-	game.load.spritesheet('explosion', 'explosion.png', 38, 38);
+    game.load.spritesheet('jack', 'jack.png', 32, 64);
+    game.load.spritesheet('zombie', 'zombie.png', 32, 64);
+    game.load.image('heart', 'heart.png');
+    game.load.image('dirt', 'dirt.png');
 
-	game.load.bitmapFont('carrier_command', 'carrier_command.png', 'carrier_command.xml');
+    game.load.image('crater', 'crater.png');
+    game.load.image('blood', 'blood.png');
 
-	game.load.audio('ExplosionAudio', 'Explosion.wav');
-	game.load.audio('HitAudio', 'Hit.wav');
-	//game.load.audio('HurtAudio', 'Hurt.wav');
+    game.load.spritesheet('bomb', 'bomb.png', 17, 21);
+    game.load.spritesheet('explosion', 'explosion.png', 38, 38);
 
-	game.load.audio('Step1', 'pl_step1.wav');
-	game.load.audio('Step2', 'pl_step2.wav');
+    game.load.bitmapFont('carrier_command', 'carrier_command.png', 'carrier_command.xml');
+
+    game.load.audio('ExplosionAudio', 'Explosion.wav');
+    game.load.audio('HitAudio', 'Hit.wav');
+    //game.load.audio('HurtAudio', 'Hurt.wav');
+
+    game.load.audio('Step1', 'pl_step1.wav');
+    game.load.audio('Step2', 'pl_step2.wav');
 }
 
 //wird nach dem laden gestartet
@@ -109,13 +113,13 @@ JackDanger.b7even.prototype.mycreate = function () {
 }
 
 //wird jeden Frame aufgerufen
-JackDanger.b7even.prototype.update = function() {
+JackDanger.b7even.prototype.update = function () {
     var dt = this.time.physicsElapsedMS * 0.001;
     // add zombie
     var timestamp = new Date().getTime();
     if (this.zombieT + this.zombieSpawner[0] <= timestamp && this.zombieSpawner.length > 0) {
         this.zombieSpawner.shift();
-        
+
         this.zombieT = timestamp;
         this.zombies.add();
     }
@@ -146,6 +150,10 @@ JackDanger.b7even.prototype.update = function() {
             // jack to near?
             var vx = this.explosions[b].obj.x - this.jack.obj.x;
             var vy = this.explosions[b].obj.y - this.jack.obj.y;
+
+            var img = game.add.sprite(this.explosions[b].obj.x, this.explosions[b].obj.y, 'crater');
+            img.anchor.setTo(.5, .5);
+            img.scale.setTo(2, 2);
 
             var distance = Math.sqrt(vx * vx + vy * vy);
 
@@ -217,7 +225,7 @@ JackDanger.b7even.prototype.update = function() {
                 jack_top = true;
             }
             objects[i].bringToTop();
-        }      
+        }
     }
 
     if (jack_top == false) {
@@ -388,6 +396,11 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                 var distance = Math.sqrt(vx * vx + vy * vy);
 
                 if (distance <= 120) {
+                    var img = game.add.sprite(this.objects[i].x, this.objects[i].y, 'blood');
+                    img.anchor.setTo(.5, .75);
+                    img.angle = Math.random() * 360;
+                    img.scale.setTo(2, 2);
+
                     game.world.remove(this.objects[i]);
                     this.objects.splice(i, 1);
                     this.count -= 1;
@@ -547,7 +560,7 @@ JackDanger.b7even.prototype.controls = function (dt) {
 
             this.bombs[i] = {};
 
-            this.bombs[i].obj = game.add.sprite(this.jack.obj.x, this.jack.obj.y, 'bomb');
+            this.bombs[i].obj = game.add.sprite(this.jack.obj.x, this.jack.obj.y + 10, 'bomb');
             this.bombs[i].obj.anchor.setTo(.5, 1);
             this.bombs[i].obj.scale.setTo(2, 2);
 
