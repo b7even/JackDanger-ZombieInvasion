@@ -15,15 +15,16 @@ JackDanger.b7even.prototype.preload = function () {
 
     //füge hie rein was du alles laden musst.
     game.load.spritesheet('jack', 'jack.png', 32, 64);
-    game.load.spritesheet('zombie', 'zombie.png', 32, 64);
+    game.load.spritesheet('zombie', 'zombie_shadow.png', 32, 68);
     game.load.image('heart', 'heart.png');
-    game.load.image('dirt', 'dirt.png');
-
-    game.load.image('crater', 'crater.png');
+    game.load.image('shadow', 'shadow.png');
     game.load.image('blood', 'blood.png');
-
-    game.load.spritesheet('bomb', 'bomb.png', 17, 21);
+    game.load.image('dirt', 'dirt.png');
+    game.load.spritesheet('bomb', 'bomb.png', 17, 22);
     game.load.spritesheet('explosion', 'explosion.png', 38, 38);
+    game.load.image('crater', 'crater.png');
+
+    game.load.image('shadow', 'shadow.png');
 
     game.load.bitmapFont('carrier_command', 'carrier_command.png', 'carrier_command.xml');
 
@@ -33,6 +34,9 @@ JackDanger.b7even.prototype.preload = function () {
 
     game.load.audio('Step1', 'pl_step1.wav');
     game.load.audio('Step2', 'pl_step2.wav');
+
+    game.load.audio('zombie01', 'zombie01.wav');
+    game.load.audio('zombie02', 'zombie02.wav');
 }
 
 //wird nach dem laden gestartet
@@ -45,9 +49,9 @@ JackDanger.b7even.prototype.mycreate = function () {
     this.stepSound = [];
 
     this.stepSound[0] = game.add.audio('Step1');
-    this.stepSound[0].volume -= .5
+    this.stepSound[0].volume = .3;
     this.stepSound[1] = game.add.audio('Step2');
-    this.stepSound[1].volume -= .5
+    this.stepSound[1].volume = .3;
     this.stepTimer = 0;
 
     // create background
@@ -82,14 +86,14 @@ JackDanger.b7even.prototype.mycreate = function () {
     this.zombies = new this.zombiesDefinition();
     this.zombieT = new Date().getTime();
 
-    this.zombieSpawner = [1000, 4000, 4000, 0, 4000, 250, 250, 250, 6000, 2000, 1000, 3000, 3000, 0, 2000, 0, 0, 2000, 2000, 0];
+    this.zombieSpawner = [1000, 4000, 0, 0, 4000, 250, 0, 0, 5000, 500, 0, 3000, 0, 0, 0, 0, 0, 4000, 1000, 500, 3000, 0, 0, 0, 0];
 
     this.zombies.count = this.zombieSpawner.length;
 
     this.statusMsg.setText(this.zombies.count + ' zombies left');
     this.statusMsgShadow.setText(this.zombies.count + ' zombies left');
 
-    this.bombImage = game.add.sprite(770, 21, 'bomb');
+    this.bombImage = game.add.sprite(770, 23, 'bomb');
     this.bombImage.anchor.setTo(0.5, .5);
     this.bombImage.scale.setTo(2.5, 2.5);
 
@@ -110,6 +114,7 @@ JackDanger.b7even.prototype.mycreate = function () {
     this.bombs = [];
 
     this.explosions = [];
+    this.crater = [];
 }
 
 //wird jeden Frame aufgerufen
@@ -128,6 +133,7 @@ JackDanger.b7even.prototype.update = function () {
     for (var i in this.bombs) {
         if (this.bombs[i].timestamp + 2000 <= timestamp) {
             var audio = game.add.audio('ExplosionAudio');
+            audio.volume = .6;
             audio.play();
 
             var b = this.explosions.length;
@@ -151,15 +157,16 @@ JackDanger.b7even.prototype.update = function () {
             var vx = this.explosions[b].obj.x - this.jack.obj.x;
             var vy = this.explosions[b].obj.y - this.jack.obj.y;
 
-            var img = game.add.sprite(this.explosions[b].obj.x, this.explosions[b].obj.y, 'crater');
-            img.anchor.setTo(.5, .5);
-            img.scale.setTo(2, 2);
-
             var distance = Math.sqrt(vx * vx + vy * vy);
 
             if (distance <= 120) {
                 this.jack.hit();
             }
+
+            var c = this.crater.length;
+            this.crater[c] = game.add.sprite(this.explosions[b].obj.x, this.explosions[b].obj.y, 'crater');
+            this.crater[c].anchor.setTo(.5, .5);
+            this.crater[c].scale.setTo(2, 2);
         }
     }
 
@@ -167,7 +174,7 @@ JackDanger.b7even.prototype.update = function () {
         if (this.explosions[i].timestamp + 1000 <= timestamp) {
             game.world.remove(this.explosions[i].obj);
             this.explosions.splice(i, 1);
-        } else if (this.explosions[i].timestamp + 250 <= timestamp && this.explosions[i].timestamp + 750 >= timestamp) {
+        } else if (this.explosions[i].timestamp + 300 <= timestamp && this.explosions[i].timestamp + 750 >= timestamp) {
             this.zombies.kill(this.explosions[i].obj.x, this.explosions[i].obj.y, 'Explosion');
 
             this.statusMsg.setText(this.zombies.count + ' zombies left');
@@ -255,6 +262,7 @@ JackDanger.b7even.prototype.update = function () {
 JackDanger.b7even.prototype.jackDefinition = function () {
     // definition
     this.obj;
+    this.shadow;
 
     this.lifes = [];
 
@@ -274,6 +282,14 @@ JackDanger.b7even.prototype.jackDefinition = function () {
         this.obj = game.add.sprite(32, 64, 'jack');
         this.obj.anchor.setTo(0.5, 1);
         this.obj.scale.setTo(2, 2);
+
+        this.shadow = game.add.sprite(32, 64, 'shadow');
+        this.shadow.anchor.setTo(0.5, .5);
+        this.shadow.scale.setTo(2, 2);
+        this.shadow.alpha = .28;
+
+        this.shadow.x = 400;
+        this.shadow.y = 289 - 3;
 
         this.obj.x = 400;
         this.obj.y = 289;
@@ -329,6 +345,10 @@ JackDanger.b7even.prototype.jackDefinition = function () {
     };
 
     this.update = function (dt) {
+        this.shadow.x = this.obj.x;
+        this.shadow.y = this.obj.y - 3;
+
+
         // check if dead
         if (this.lifes.length == 0) {
             onLose();
@@ -370,7 +390,6 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
 
         this.objects[i] = game.add.sprite(32, 64, 'zombie');
         this.objects[i].scale.setTo(2, 2);
-
         this.objects[i].anchor.setTo(0.5, 1);
 
         this.objects[i].animations.add('wRight', [0, 1, 0, 2], 6, true);
@@ -396,19 +415,19 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                 var distance = Math.sqrt(vx * vx + vy * vy);
 
                 if (distance <= 120) {
-                    var img = game.add.sprite(this.objects[i].x, this.objects[i].y, 'blood');
-                    img.anchor.setTo(.5, .75);
-                    img.angle = Math.random() * 360;
-                    img.scale.setTo(2, 2);
+                    var test = game.add.sprite(this.objects[i].x, this.objects[i].y, 'blood');
+                    test.scale.setTo(2, 2);
+                    test.angle = Math.random() * 360;
+                    test.anchor.setTo(.5, .75);
 
                     game.world.remove(this.objects[i]);
                     this.objects.splice(i, 1);
                     this.count -= 1;
                     var audio = game.add.audio('HitAudio');
+                    audio.volume = .3;
                     audio.play();
                 }
             }
-
         } else if (direction == 'Left') {
             for (var i in this.objects) {
                 if (Math.abs(this.objects[i].y - y) < 25) {
@@ -417,6 +436,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                         this.objects.splice(i, 1);
                         this.count -= 1;
                         var audio = game.add.audio('HitAudio');
+                        audio.volume = .3;
                         audio.play();
                     }
                 }
@@ -429,6 +449,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                         this.objects.splice(i, 1);
                         this.count -= 1;
                         var audio = game.add.audio('HitAudio');
+                        audio.volume = .3;
                         audio.play();
                     }
                 }
@@ -441,6 +462,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                         this.objects.splice(i, 1);
                         this.count -= 1;
                         var audio = game.add.audio('HitAudio');
+                        audio.volume = .3;
                         audio.play();
                     }
                 }
@@ -453,6 +475,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
                         this.objects.splice(i, 1);
                         this.count -= 1;
                         var audio = game.add.audio('HitAudio');
+                        audio.volume = .3;
                         audio.play();
                     }
                 }
@@ -461,6 +484,14 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
     };
 
     this.update = function (x, y, dt) {
+
+        // play zombie sound
+        if (Math.random() > 1 - this.objects.length * .002) {
+            var audio = game.add.audio('zombie0' + (Math.round(Math.random()) + 1));
+            audio.volume = .4;
+            audio.play();
+        }
+
         for (var i in this.objects) {
             // steer to jack
             var vx = x - this.objects[i].x;
@@ -549,7 +580,7 @@ JackDanger.b7even.prototype.controls = function (dt) {
     // throw bomb
     if (Pad.isDown(Pad.JUMP)) {
         if (this.jack.lastBomb + 350 < timestamp && this.bombCount > 0) {
-            
+
             this.bombCount -= 1;
 
             this.bombMsg.setText(this.bombCount);
@@ -589,7 +620,7 @@ JackDanger.b7even.prototype.controls = function (dt) {
                 this.stepTimer = timestamp;
                 this.stepSound[Math.round(Math.random())].play();
             }
-        } 
+        }
 
         if (Pad.isDown(Pad.UP)) {
             this.jack.obj.y -= this.jack.speed * f * dt;
