@@ -15,7 +15,8 @@ JackDanger.b7even.prototype.preload = function () {
 
     //füge hie rein was du alles laden musst.
     game.load.spritesheet('jack', 'jack.png', 32, 64);
-    game.load.spritesheet('zombie', 'zombie_shadow.png', 32, 68);
+    game.load.spritesheet('zombie0', 'zombie_shadow.png', 32, 68);
+    game.load.spritesheet('zombie1', 'zombie2.png', 32, 68);
     game.load.image('heart', 'heart.png');
     game.load.image('shadow', 'shadow.png');
     game.load.image('blood', 'blood.png');
@@ -388,7 +389,7 @@ JackDanger.b7even.prototype.zombiesDefinition = function () {
     this.add = function () {
         var i = this.objects.length;
 
-        this.objects[i] = game.add.sprite(32, 64, 'zombie');
+        this.objects[i] = game.add.sprite(32, 64, 'zombie' + Math.round(Math.random()));
         this.objects[i].scale.setTo(2, 2);
         this.objects[i].anchor.setTo(0.5, 1);
 
