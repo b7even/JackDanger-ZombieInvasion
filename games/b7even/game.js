@@ -3,7 +3,7 @@ JackDanger.b7even = function () {
 };
 
 //hier musst du deine Eintragungen vornhemen.
-addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies mit den Tasten!", "Bewegen", "Bombe legen", "Schlagen", JackDanger.b7even);
+addMyGame("b7even", "Zombie Invasion", "b7even", "Töte die Zombies!", "Bewegen", "Bombe legen", "Schlagen", JackDanger.b7even);
 
 JackDanger.b7even.prototype.init = function () {
     logInfo("init Game");
@@ -31,7 +31,7 @@ JackDanger.b7even.prototype.preload = function () {
 
     game.load.audio('ExplosionAudio', 'Explosion.wav');
     game.load.audio('HitAudio', 'Hit.wav');
-    //game.load.audio('HurtAudio', 'Hurt.wav');
+    game.load.audio('HurtAudio', 'Hurt.wav');
 
     game.load.audio('Step1', 'pl_step1.wav');
     game.load.audio('Step2', 'pl_step2.wav');
@@ -91,7 +91,7 @@ JackDanger.b7even.prototype.mycreate = function () {
     this.zombies = new this.zombiesDefinition();
     this.zombieT = new Date().getTime();
 
-    this.zombieSpawner = [1000, 4000, 0, 0, 4000, 250, 0, 0, 5000, 500, 0, 3000, 0, 0, 0, 0, 0, 4000, 1000, 500, 3000, 0, 0, 0, 0];
+    this.zombieSpawner = [1000, 4000, 2000, 0, 2000, 0, 0, 0, 5000, 0, 0, 6000, 0, 0, 3000, 500, 0, 3000, 1000, 500, 1000, 0, 500, 0, 0];
 
     this.zombies.count = this.zombieSpawner.length;
 
